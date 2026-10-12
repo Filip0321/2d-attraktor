@@ -4,8 +4,12 @@ const MAX_STAERKE = 255;
 const MAX_MASSSTAB_BESTIMMEN = 200000;
 const LIMIT_ABSTAND_PUNKTE = 1000000;
 
+const MAX_ZOOM = 10000;
+
 let staerke = 10;
 let punkte = 1000000;
+let zoom = 100;
+let massstab = 1;
 
 // immer sinnvolle Hilfsfunktion
 function hole(id) {
@@ -16,10 +20,13 @@ const canvas = hole("zeichenBild");
 const canvasContext = canvas.getContext("2d");
 
 const sofortBtn = hole("sofortBtn");
+const massstabBtn = hole("massstabBtn");
 
 const staerkeFeld = hole("staerke");
 const punkteFeld = hole("punkte");
 // die beiden Eingabefelder
+
+const zoomFeld = hole("zoom");
 
 let animiert = false;
 
@@ -88,9 +95,12 @@ function attraktorMittigMalen() {
 
   const breite = maxX - minX;
   const hoehe = maxY - minY;
+  massstab = Math.min(canvas.width / breite, canvas.height / hoehe) * 0.9;
+  // sonst sieht man einfach gar nichts
+  // beim Tinkerbell muss die distanz aller punkt um das 900 FACHE erhöht 
+  // werden damit man überhaupt was erkennen kann
 
   return {
-    massstab: Math.min(canvas.width / breite, canvas.height / hoehe) * 0.9,
     mitteX: (minX + maxX) / 2,
     mitteY: (minY + maxY) / 2,
   };
@@ -120,7 +130,7 @@ function punkteHinzufuegen(anzahl) {
   const w = fertigesBild.width;
   const h = fertigesBild.height;
   const pixel = fertigesBild.data;
-  const { massstab, mitteX, mitteY } = mittigesBild;
+  const { mitteX, mitteY } = mittigesBild;
   const ende = Math.min(gezeichnet + anzahl, punkte);
 
   for (; gezeichnet < ende; gezeichnet++) {
@@ -133,8 +143,8 @@ function punkteHinzufuegen(anzahl) {
 
     if (gezeichnet < 100) continue;
 
-    const px = Math.floor(w / 2 + (pos.x - mitteX) * massstab); // die Punkte korrekt bezogen
-    const py = Math.floor(h / 2 + (pos.y - mitteY) * massstab); // auf die neue Mitte setzen
+    const px = Math.floor(w / 2 + (pos.x - mitteX) * zoom); // die Punkte korrekt bezogen
+    const py = Math.floor(h / 2 + (pos.y - mitteY) * zoom); // auf die neue Mitte setzen
     if (px < 0 || px >= w || py < 0 || py >= h) continue;
 
     const stelle = (py * w + px) * 4; // siehe gameOfLife --> aus mehrdimensionaler Array, eindimensionale
@@ -179,8 +189,20 @@ sofortBtn.addEventListener("click", () => {
   sofortBtn.textContent = animiert ? "Stoppen" : "Animieren";
 });
 
+massstabBtn.addEventListener("click", () => {
+  zoom = massstab;
+  zoomFeld.value = massstab;
+  zeichneAttraktor();
+});
+
+zoomFeld.addEventListener("change", () => {
+  zoom = leseGanzzahl(zoomFeld, 0, MAX_ZOOM, zoom);
+  zeichneAttraktor();
+});
+
 punkteFeld.value = punkte;
 staerkeFeld.value = staerke;
+zoomFeld.value = zoom;
 
 function zeichneAttraktor() {
   gezeichnet = 0;
