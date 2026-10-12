@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>2d-attraktoren</title>
+    <link href="style.css" rel="stylesheet">
+  </head>
+  <body>
+    <main class="seite">
+      <header class="projekt-kopf">
+        <h1>2D Attraktoren</h1>
+        <ul class="tags">
+          <li>attraktor</li>
+          <li>projekt</li>
+        </ul>
+      </header>
+    
+      <canvas id="zeichenBild"></canvas>
+
+      <div class="steuerung">
+        <button id="sofortBtn">Sofort</button>
+      </div>
+      <div class="steuerung">
+        <label>Punkte<input type="number" id="punkte" min="100" max="1000000" step="1"></label>
+        <label>Stärke<input type="number" id="staerke" min="0" max="255" step="1"></label>
+      </div>
+    
+    </main>
+    <script src=script.js></script>
+  </body>
+</html>

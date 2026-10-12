@@ -1,0 +1,95 @@
+@font-face {
+  font-family: "Special Elite";
+  src: url("fonts/SpecialElite-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --bg: #111111;
+  --text: #dddddd;
+  color-scheme: dark;
+}
+
+* {
+  margin: 0; /* überall 0 damit ich selber sagen kann wo alles ist */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg); /* background */
+  color: var(--text); /* textFarbe */
+  font-family: "Special Elite", "Courier New", monospace;
+}
+
+.projekt-kopf .meta {
+  opacity: 0.6;
+  margin-top: 0.25rem;
+} /* alles was die Klasse "projekt-kopf" UND "meta" hat soll dunkler sein */
+
+.seite {
+  max-width: 60rem; /* 60 mal die basic Schriftgröße */
+  margin: 0 auto;
+  padding: 5rem 1.5rem; /* (oben, unten) (left, right) */
+}
+/* margin platz zu anderen elementen */
+/* padding ist platz zum rand des eigenen elementes */
+
+.seite h1 {
+  font-size: clamp(2rem, 8vw, 4rem);
+  margin-bottom: 2rem;
+}
+/* unter der überschrift ist 2rem platz */
+/* hier soll der Tag mit wenig abstand und Rahmen */
+.tags {
+  list-style: none; /* keine Liste - kein Punkt davor */
+  display: flex; /* werden jetzt aneinander gereiht */
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+
+.tags li {
+  border: 1px solid currentColor; /* sehr nah an der schrift */
+  padding: 0.1rem 0.5rem; /* gibt in der Box (border) mehr platz */
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* Canvas */
+canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
+  image-rendering: pixelated; /* mache ja sowieso nen grid */
+  cursor: crosshair; /* mach den cursor cool */
+}
+
+.steuerung {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+}
+
+.steuerung button {
+  border: 1px solid currentColor;
+  padding: 0.5rem 1rem;
+  font-family: "Special Elite", "Courier New", monospace;
+  background: var(--bg);
+}
+
+.steuerung button:hover,
+.steuerung button[aria-pressed=true] {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.steuerung input {
+  width: 7.5rem;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid currentColor;
+  padding: 0.3rem 0.5rem;
+}
