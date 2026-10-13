@@ -25,7 +25,7 @@ body {
 .projekt-kopf .meta {
   opacity: 0.6;
   margin-top: 0.25rem;
-} /* alles was die Klasse "projekt-kopf" UND "meta" hat soll dunkler sein */
+} /* alles was die Klasse "meta" hat UND in "projekt-kopf" liegt soll dunkler sein */
 
 .seite {
   max-width: 60rem; /* 60 mal die basic Schriftgröße */
@@ -57,13 +57,21 @@ body {
 }
 
 /* Canvas */
+
+.canvas-wrapper {
+  --verhaeltnis: 1; /* Breite durch Höhe, beim Game of Life 4 / 3 */
+}
+
 canvas {
+  display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1/1;
-  image-rendering: pixelated; /* mache ja sowieso nen grid */
-  cursor: crosshair; /* mach den cursor cool */
+  aspect-ratio: var(--verhaeltnis);
+  cursor: crosshair;
+  touch-action: none; /* Finger ziehen und zoomen im Canvas, statt die Seite zu scrollen */
 }
+
+/* Steuerung */
 
 .steuerung {
   display: flex;
@@ -72,24 +80,103 @@ canvas {
   margin: 0.8rem 0;
 }
 
-.steuerung button {
-  border: 1px solid currentColor;
-  padding: 0.5rem 1rem;
-  font-family: "Special Elite", "Courier New", monospace;
-  background: var(--bg);
+.steuerung label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.steuerung button:hover,
-.steuerung button[aria-pressed=true] {
-  background: var(--text);
-  color: var(--bg);
-}
-
+.steuerung button,
 .steuerung input {
-  width: 7.5rem;
   font: inherit;
   color: inherit;
   background: none;
   border: 1px solid currentColor;
+}
+
+.steuerung button {
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+.steuerung input {
+  width: 7.5rem;
   padding: 0.3rem 0.5rem;
+}
+
+.steuerung input[type="checkbox"],
+.steuerung input[type="range"] {
+  width: auto;
+  border: none;
+  padding: 0;
+  accent-color: var(--text);
+}
+
+.steuerung button:hover,
+.steuerung button:focus-visible,
+.steuerung button[aria-pressed="true"] {
+  background: var(--text);
+  color: var(--bg);
+}
+
+/*
+Werkbank: Canvas links (zwei Drittel), Titel und Bedienung rechts
+gilt, sobald der Bildschirm breiter als hoch ist (Desktop, Handy quer)
+und nicht winzig. Hochkant bleibt alles untereinander.
+
+  ┌────────────────┬───────────┐
+  │                │ kopf      │
+  │     feld       ├───────────┤
+  │                │ bedienung │
+  └────────────────┴───────────┘
+*/
+
+@media (orientation: landscape) and (min-width: 40rem) {
+  .werkbank {
+    max-width: 120rem;
+    padding: 2rem 1.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "feld kopf"
+      "feld bedienung";
+    column-gap: 2.5rem;
+    align-items: start; /* nicht strecken, damit sticky geht */
+  }
+
+  .werkbank .projekt-kopf {
+    grid-area: kopf;
+  }
+
+  .werkbank h1 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem); /* rechts ist weniger Platz */
+    margin-bottom: 1rem;
+  }
+
+  .werkbank .canvas-wrapper {
+    grid-area: feld;
+    position: sticky; /* bleibt stehen, wenn man rechts scrollt */
+    top: 2rem;
+  }
+
+  .werkbank .bedienung {
+    grid-area: bedienung;
+  }
+
+  /* nie höher als der Bildschirm: Höhe = Breite / Verhältnis */
+  .werkbank canvas {
+    width: min(100%, calc((100vh - 4rem) * var(--verhaeltnis)));
+    width: min(100%, calc((100dvh - 4rem) * var(--verhaeltnis))); /* dvh: Handy-Adressleiste mitgerechnet, ältere Browser nehmen die Zeile drüber */
+    margin: 0 auto;
+  }
+
+  .werkbank .steuerung {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .werkbank .steuerung label {
+    justify-content: space-between; /* Text links, Feld rechts */
+  }
 }
