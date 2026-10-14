@@ -4,12 +4,11 @@ import { TINKERBELL, berechnePunkte, vermesseAttraktor } from "./attraktor.js";
 import { erstelleShader } from "./shader.js";
 
 const MAX_PUNKTE = 10000000;
-const MAX_STAERKE = 255;
 const MAX_ZOOM = 100000;
 const BILDER_PRO_ANIMATION = 300; // in so vielen Bildern entsteht der Attraktor (60 pro Sekunde = 5 s)
 
 let punkte = 100000;
-let staerke = 10;
+// Helligkeit (staerke), Farbe und Invertieren sind Regler mit data-wert, siehe unten: einstellung
 let zoom = 100;
 
 // immer sinnvolle Hilfsfunktion
@@ -24,20 +23,43 @@ const canvas = hole("zeichenBild");
 const sofortBtn = hole("sofortBtn");
 const massstabBtn = hole("massstabBtn");
 
-const staerkeFeld = hole("staerke");
 const punkteFeld = hole("punkte");
-// die beiden Eingabefelder
+// die Zahlenfelder (die Regler kommen über data-wert)
 
 const zoomFeld = hole("zoom");
 
-const farbigCheck = hole("farbigCheck");
-const redRange = hole("red");
-const blueRange = hole("blue");
+// Regler und Schalter (wie im 3D-Attraktor)
+// alles mit data-wert im HTML landet hier unter seinem Namen:
+// <input type="range" data-wert="staerke"> → einstellung.staerke
+// Startwerte stehen dadurch nur im HTML
+const einstellung = {};
+const felder = {}; // die Felder selbst, damit der Code sie auch verstellen kann
 
-// Startwerte aus dem HTML lesen, dann gibt es nur eine Stelle, wo sie stehen
-let farbig = farbigCheck.checked;
-let red = Number(redRange.value);
-let blue = Number(blueRange.value);
+// steht direkt hinter dem Feld ein <output>, zeigt es den Wert an
+function zeigeWert(feld) {
+  const anzeige = feld.nextElementSibling;
+  if (anzeige?.tagName === "OUTPUT") anzeige.textContent = feld.value;
+}
+
+// Wert aus dem Feld lesen (Häkchen → true/false, alles andere → Zahl)
+function lies(name) {
+  const feld = felder[name];
+  einstellung[name] = feld.type === "checkbox" ? feld.checked : Number(feld.value);
+  zeigeWert(feld);
+}
+
+// ein einziger Listener-Bauplan für alle Felder
+document.querySelectorAll("[data-wert]").forEach((feld) => {
+  const name = feld.dataset.wert; // data-wert="staerke" → "staerke"
+  felder[name] = feld;
+  lies(name);
+
+  // "input" statt "change": feuert schon beim Ziehen, nicht erst beim Loslassen
+  feld.addEventListener("input", () => {
+    lies(name);
+    zeichne();
+  });
+});
 
 const shader = erstelleShader(canvas);
 
@@ -90,7 +112,10 @@ function rechne() {
 
 // zeichnen billig, geht bei jedem Zoom
 function zeichne() {
-  shader.zeichne({ mitteX: ansicht.x, mitteY: ansicht.y, zoom, staerke, farbig, red, blue, sichtbar });
+  shader.zeichne({
+    mitteX: ansicht.x, mitteY: ansicht.y, zoom, sichtbar,
+    ...einstellung, // staerke, invertiert, farbig, red, blue … alle auf einmal
+  });
 }
 
 function zeigeAlles() {
@@ -127,6 +152,10 @@ function animiere() {
   }
 
   animationsId = requestAnimationFrame(bildSchritt);
+  // da bildSchritt auch nur eine Funktion ist, muss diese einmal nach ihrer Definition aufgerufen werden
+  // bis hier wurde sie lediglich definiert
+  // läuft also nicht nach bildSchritt durch, sondern ist der erste Funktionsaufruf
+  // und sagt was beim nächsten Frame gemacht werden soll
 }
 
 // Felder
@@ -136,11 +165,6 @@ punkteFeld.addEventListener("change", () => {
   stoppeAnimation();
   rechne();
   zeichne();
-});
-
-staerkeFeld.addEventListener("change", () => {
-  staerke = leseZahl(staerkeFeld, 1, MAX_STAERKE, staerke);
-  zeichne(); // nur zeichnen, die Punkte bleiben gleich
 });
 
 zoomFeld.addEventListener("change", () => {
@@ -158,22 +182,6 @@ sofortBtn.addEventListener("click", () => {
 });
 
 massstabBtn.addEventListener("click", zeigeAlles);
-
-farbigCheck.addEventListener("change", () => {
-  farbig = farbigCheck.checked; // direkt vom Häkchen, dann kann es nie verkehrt herum sein
-  zeichne();
-});
-
-// "input" statt "change": feuert schon beim Ziehen, nicht erst beim Loslassen
-redRange.addEventListener("input", () => {
-  red = Number(redRange.value);
-  zeichne();
-});
-
-blueRange.addEventListener("input", () => {
-  blue = Number(blueRange.value);
-  zeichne();
-});
 
 // Mouse Listener
 // Mausrad: zoomen, die Stelle unter dem Zeiger bleibt stehen
@@ -195,7 +203,7 @@ canvas.addEventListener("wheel", (event) => {
   zeichne();
 }, { passive: false });
 
-// Abstand der Maus zur Canvas-Mitte [Canvas-Pixel]
+// Abstand der Maus zur Canvas-Mitte 
 function mausAbstand(event) {
   const rect = canvas.getBoundingClientRect();
   return {
@@ -263,6 +271,7 @@ function greifeNeu() {
 
 canvas.addEventListener("pointerdown", (event) => {
   finger.set(event.pointerId, mausAbstand(event));
+  // hier bekommen a und b die attribute dx und dy -> durch mausabstand
   canvas.setPointerCapture(event.pointerId);
   greifeNeu();
 });
@@ -296,7 +305,6 @@ canvas.addEventListener("pointercancel", lassLos);
 // Start
 
 punkteFeld.value = punkte;
-staerkeFeld.value = staerke;
 
 rechne(); // die Punkte brauchen keine Canvas-Größe
 
@@ -318,3 +326,4 @@ const beobachter = new ResizeObserver(() => {
 });
 
 beobachter.observe(canvas);
+
