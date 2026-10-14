@@ -87,7 +87,7 @@ function rechne() {
   // berechnen der Punkte in attraktor.js
   const daten = berechnePunkte(typ, werte, punkte);
   shader.ladePunkte(daten);
-  anzahl = daten.length / 2;
+  anzahl = daten ? daten.length / 2 : 0;
   mass = daten ? vermesseAttraktor(daten) : null;
 }
 
