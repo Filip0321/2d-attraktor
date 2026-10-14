@@ -113,7 +113,7 @@ export function erstelleShader(canvas) {
 
   // Ein Bild zeichnen, so oft man will, ohne neu zu rechnen
   // sichtbar: wie viele Punkte gezeichnet werden (zum Entstehen lassen), ohne Angabe alle
-  function zeichne({ mitteX, mitteY, zoom, staerke, anzahl, farbig, red, blue, sichtbar = anzahl }) {
+  function zeichne({ mitteX, mitteY, zoom, staerke, farbig, red, blue, sichtbar = anzahl }) {
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(17 / 255, 17 / 255, 17 / 255, 1); // das Grau der Seite (#111111)
     gl.clear(gl.COLOR_BUFFER_BIT);

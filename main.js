@@ -80,20 +80,17 @@ function passenderZoom() {
   return Math.min(canvas.width / mass.breite, canvas.height / mass.hoehe) * 0.9;
 }
 
-let anzahl;
-
 // rechnen nur wenn sich Werte oder Punktzahl ändern
 function rechne() {
   // berechnen der Punkte in attraktor.js
   const daten = berechnePunkte(typ, werte, punkte);
   shader.ladePunkte(daten);
-  anzahl = daten ? daten.length / 2 : 0;
   mass = daten ? vermesseAttraktor(daten) : null;
 }
 
 // zeichnen billig, geht bei jedem Zoom
 function zeichne() {
-  shader.zeichne({ mitteX: ansicht.x, mitteY: ansicht.y, zoom, staerke, anzahl, farbig, red, blue, sichtbar });
+  shader.zeichne({ mitteX: ansicht.x, mitteY: ansicht.y, zoom, staerke, farbig, red, blue, sichtbar });
 }
 
 function zeigeAlles() {
