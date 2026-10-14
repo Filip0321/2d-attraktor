@@ -326,4 +326,3 @@ const beobachter = new ResizeObserver(() => {
 });
 
 beobachter.observe(canvas);
-
